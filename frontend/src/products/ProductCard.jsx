@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 
-function ProductCard({ product }) {
+function ProductCard({product}){
 
 
     const { addToCart } = useCart();
+
 
 
 
@@ -15,29 +16,31 @@ function ProductCard({ product }) {
 
 
             {
-                product.image && (
 
-                    <img
 
-                        src={
-                            product.image.startsWith("http")
-                            ? product.image
-                            : `http://127.0.0.1:8000${product.image}`
-                        }
+            product.image &&
 
-                        className="card-img-top"
+            <img
 
-                        alt={product.name}
+            src={product.image}
 
-                        style={{
-                            height:"220px",
-                            objectFit:"cover"
-                        }}
+            className="card-img-top"
 
-                    />
+            alt={product.name}
 
-                )
+            style={{
+
+                height:"250px",
+
+                objectFit:"cover"
+
+            }}
+
+            />
+
             }
+
+
 
 
 
@@ -52,45 +55,60 @@ function ProductCard({ product }) {
 
 
 
-                <p className="card-text">
 
-                    {product.description?.substring(0,80)}
+                <p>
 
-                    ...
+                    {product.brand}
 
                 </p>
 
-
-
-                <h6 className="text-success">
-
-                    {product.price} FCFA
-
-                </h6>
 
 
 
                 <p>
 
-                    Stock :
-
-                    <strong>
-                        {" "}
-                        {product.stock}
-                    </strong>
+                    ⭐ {product.rating}
 
                 </p>
 
 
 
-                <div className="d-flex gap-2">
+
+
+                {
+
+                product.discount > 0 &&
+
+                <span className="badge bg-danger">
+
+                    -{product.discount}%
+
+                </span>
+
+                }
+
+
+
+
+
+                <h5 className="mt-3 text-primary">
+
+                    {product.price} FCFA
+
+                </h5>
+
+
+
+
+
+                <div className="d-flex gap-2 mt-3">
 
 
                     <Link
 
-                        to={`/products/${product.id}`}
+                    className="btn btn-outline-dark"
 
-                        className="btn btn-outline-primary"
+                    to={`/products/${product.id}`}
 
                     >
 
@@ -100,15 +118,17 @@ function ProductCard({ product }) {
 
 
 
+
+
                     <button
 
-                        className="btn btn-success"
+                    className="btn btn-success"
 
-                        onClick={() => addToCart(product)}
+                    onClick={()=>addToCart(product)}
 
                     >
 
-                        Ajouter
+                        Panier
 
                     </button>
 
@@ -120,9 +140,12 @@ function ProductCard({ product }) {
             </div>
 
 
+
         </div>
 
+
     );
+
 
 }
 

@@ -1,31 +1,43 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-
 from .models import Product
-
 from .serializers import ProductSerializer
-
 from .permissions import IsAdminUser
 
 
 
-
-
-# ============================
-# LISTE + CREATION PRODUIT
-# ============================
+# =====================================
+# LISTE + CREATION PRODUITS
+# =====================================
 
 
 class ProductListCreateView(
     generics.ListCreateAPIView
 ):
 
-
-    queryset = Product.objects.all()
-
-
     serializer_class = ProductSerializer
+
+
+    def get_queryset(self):
+
+        queryset = Product.objects.all()
+
+
+        # Filtrer par catégorie
+        category_id = self.request.query_params.get(
+            "category"
+        )
+
+
+        if category_id:
+
+            queryset = queryset.filter(
+                category_id=category_id
+            )
+
+
+        return queryset
 
 
 
@@ -34,9 +46,11 @@ class ProductListCreateView(
 
         if self.request.method == "POST":
 
+
             return [
                 IsAdminUser()
             ]
+
 
 
         return [
@@ -47,10 +61,9 @@ class ProductListCreateView(
 
 
 
-
-# ============================
+# =====================================
 # DETAIL + MODIFICATION + SUPPRESSION
-# ============================
+# =====================================
 
 
 class ProductDetailView(
@@ -69,18 +82,24 @@ class ProductDetailView(
 
 
         if self.request.method in [
+
             "PUT",
             "PATCH",
             "DELETE"
+
         ]:
 
 
             return [
+
                 IsAdminUser()
+
             ]
 
 
 
         return [
+
             IsAuthenticatedOrReadOnly()
+
         ]

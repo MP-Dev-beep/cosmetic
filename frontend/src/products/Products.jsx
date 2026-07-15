@@ -1,68 +1,68 @@
 import { useEffect, useState } from "react";
-
-import api from "../api/axios";
-
-import ProductCard from "./ProductCard";
+import axios from "../api/axios";
+import ProductCard from "../components/ProductCard";
 
 
-function Products() {
+function Products(){
 
 
-    const [products, setProducts] = useState([]);
+    const [products,setProducts] = useState([]);
 
-    const [loading, setLoading] = useState(true);
-
-    const [error, setError] = useState("");
+    const [loading,setLoading] = useState(true);
 
 
 
-    useEffect(() => {
+
+    useEffect(()=>{
 
         getProducts();
 
-    }, []);
+    },[]);
 
 
 
-    const getProducts = async () => {
 
 
-        try {
+    const getProducts = async()=>{
 
 
-            const response = await api.get(
-                "products/"
+        try{
+
+
+            const response = await axios.get(
+                "/products/"
             );
 
 
-            setProducts(response.data);
+            setProducts(
+                response.data
+            );
+
+
+
+        }catch(error){
+
+
+            console.log(
+                "Erreur chargement produits",
+                error
+            );
 
 
         }
 
-        catch(error){
 
-
-            console.log(error);
-
-
-            setError(
-                "Impossible de charger les produits."
-            );
-
-
-        }
-
-        finally {
-
+        finally{
 
             setLoading(false);
-
 
         }
 
 
     };
+
+
+
 
 
 
@@ -73,83 +73,89 @@ function Products() {
 
             <div className="container mt-5">
 
-                <h4>
+                <h3>
                     Chargement des produits...
-                </h4>
+                </h3>
 
             </div>
 
         );
 
-    }
-
-
-
-    if(error){
-
-
-        return (
-
-            <div className="container mt-5">
-
-                <div className="alert alert-danger">
-
-                    {error}
-
-                </div>
-
-            </div>
-
-        );
 
     }
+
+
 
 
 
     return (
 
-
         <div className="container mt-5">
 
 
-            <h2 className="mb-4">
+            <h1 className="mb-4 text-center">
 
-                Nos produits
+                Nos produits beauté
 
-            </h2>
+            </h1>
+
+
 
 
 
             <div className="row">
 
 
-                {
-
-                    products.map((product)=>(
+            {
 
 
-                        <div
+            products.length === 0 ?
 
-                            className="col-md-4 mb-4"
+            (
 
-                            key={product.id}
+                <div className="text-center">
 
-                        >
+                    Aucun produit disponible
 
-
-                            <ProductCard
-
-                                product={product}
-
-                            />
+                </div>
 
 
-                        </div>
+            )
+
+            :
+
+            (
 
 
-                    ))
+            products.map(product=>(
 
-                }
+
+                <div
+
+                className="col-md-4 mb-4"
+
+                key={product.id}
+
+                >
+
+
+                    <ProductCard
+
+                    product={product}
+
+                    />
+
+
+                </div>
+
+
+            ))
+
+
+            )
+
+
+            }
 
 
             </div>
@@ -158,11 +164,10 @@ function Products() {
 
         </div>
 
-
     );
 
-}
 
+}
 
 
 export default Products;

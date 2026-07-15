@@ -1,72 +1,108 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
-import api from "../api/axios";
+import axios from "../api/axios";
 import ProductCard from "../components/ProductCard";
 
 
-function CategoryProducts() {
+function CategoryProducts(){
 
 
     const { id } = useParams();
 
 
-    const [products, setProducts] = useState([]);
+    const [products,setProducts] = useState([]);
 
-    const [category, setCategory] = useState(null);
+    const [category,setCategory] = useState(null);
 
-    const [loading, setLoading] = useState(true);
-
-
-
-
-    useEffect(() => {
-
-
-        // récupérer les informations de la catégorie
-
-        api.get(`/categories/${id}/`)
-
-        .then((response)=>{
-
-            setCategory(response.data);
-
-        })
-
-        .catch((error)=>{
-
-            console.log(error);
-
-        });
+    const [loading,setLoading] = useState(true);
 
 
 
 
-        // récupérer les produits de cette catégorie
 
-        api.get(`/products/?category=${id}`)
+    useEffect(()=>{
 
-        .then((response)=>{
 
-            setProducts(response.data);
+        getCategoryProducts();
 
-        })
 
-        .catch((error)=>{
+    },[id]);
 
-            console.log(error);
 
-        })
 
-        .finally(()=>{
+
+
+
+
+    const getCategoryProducts = async()=>{
+
+
+        try{
+
+
+            const categoryResponse = await axios.get(
+
+                `/categories/${id}/`
+
+            );
+
+
+            setCategory(
+
+                categoryResponse.data
+
+            );
+
+
+
+
+
+
+            const productsResponse = await axios.get(
+
+                `/products/?category=${id}`
+
+            );
+
+
+
+            setProducts(
+
+                productsResponse.data
+
+            );
+
+
+
+
+
+        }
+
+        catch(error){
+
+
+            console.log(
+
+                "Erreur catégorie",
+
+                error
+
+            );
+
+
+        }
+
+
+        finally{
+
 
             setLoading(false);
 
-        });
+
+        }
 
 
-
-    }, [id]);
+    };
 
 
 
@@ -78,11 +114,15 @@ function CategoryProducts() {
 
         return (
 
-            <h3 className="text-center mt-5">
+            <div className="container mt-5">
 
-                Chargement...
+                <h3>
 
-            </h3>
+                    Chargement...
+
+                </h3>
+
+            </div>
 
         );
 
@@ -93,19 +133,34 @@ function CategoryProducts() {
 
 
 
+
+
     return (
 
 
-        <div className="container mt-4">
+        <div className="container mt-5">
 
 
-            <h2 className="mb-4">
+
+            <h1 className="mb-4">
 
 
-                {category ? category.name : "Produits"}
+                {
+
+                category ?
+
+                category.name
+
+                :
+
+                "Produits"
+
+                }
 
 
-            </h2>
+            </h1>
+
+
 
 
 
@@ -113,54 +168,65 @@ function CategoryProducts() {
             <div className="row">
 
 
-                {
+
+            {
 
 
-                products.length > 0 ?
+            products.length === 0 ?
 
 
-                products.map((product)=>(
+            (
+
+                <div>
+
+                    Aucun produit dans cette catégorie
+
+                </div>
+
+            )
 
 
-                    <div
-
-                        className="col-md-4 mb-4"
-
-                        key={product.id}
-
-                    >
+            :
 
 
-                        <ProductCard
-
-                            product={product}
-
-                        />
+            (
 
 
-                    </div>
+            products.map(product=>(
 
 
-                ))
+                <div
+
+                className="col-md-4 mb-4"
+
+                key={product.id}
+
+                >
 
 
+                    <ProductCard
 
-                :
+                    product={product}
 
-
-
-                <p>
-
-                    Aucun produit trouvé dans cette catégorie.
-
-                </p>
+                    />
 
 
-                }
+                </div>
+
+
+            ))
+
+
+            )
+
+
+            }
+
 
 
 
             </div>
+
 
 
 
