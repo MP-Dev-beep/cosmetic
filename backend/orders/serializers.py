@@ -6,29 +6,11 @@ from products.models import Product
 
 
 
-# =========================
-# PRODUITS DANS LA COMMANDE
-# =========================
-
-class OrderItemCreateSerializer(serializers.ModelSerializer):
 
 
-    class Meta:
-
-        model = OrderItem
-
-        fields = [
-            "product",
-            "quantity",
-            "price"
-        ]
-
-
-
-
-# =========================
-# AFFICHAGE DETAIL PRODUIT
-# =========================
+# ==========================
+# ITEM COMMANDE
+# ==========================
 
 class OrderItemSerializer(serializers.ModelSerializer):
 
@@ -44,33 +26,29 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
 
         fields = [
-
             "id",
-
             "product",
-
             "product_name",
-
             "quantity",
-
             "price"
-
         ]
 
 
 
 
-# =========================
+
+
+
+# ==========================
 # CREATION COMMANDE
-# =========================
+# ==========================
 
 class OrderCreateSerializer(serializers.ModelSerializer):
 
 
-    items = OrderItemCreateSerializer(
+    items = OrderItemSerializer(
         many=True
     )
-
 
 
     class Meta:
@@ -80,16 +58,12 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         fields = [
 
             "address",
-
             "phone",
-
             "payment_method",
-
-            "total",
-
             "items"
 
         ]
+
 
 
 
@@ -101,23 +75,48 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         )
 
 
-        order = Order.objects.create(
-            **validated_data
-        )
+        user = self.context["request"].user
+
+
+
+        total = 0
 
 
 
         for item in items_data:
 
 
-            product = item["product"]
+            total += (
+                item["price"] *
+                item["quantity"]
+            )
+
+
+
+
+
+        order = Order.objects.create(
+
+            user=user,
+
+            total=total,
+
+            **validated_data
+
+        )
+
+
+
+
+
+        for item in items_data:
 
 
             OrderItem.objects.create(
 
                 order=order,
 
-                product=product,
+                product=item["product"],
 
                 quantity=item["quantity"],
 
@@ -127,16 +126,24 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
 
 
+
         return order
 
 
 
 
-# =========================
-# AFFICHAGE COMMANDE
-# =========================
+
+
+
+# ==========================
+# AFFICHAGE ADMIN
+# ==========================
 
 class OrderSerializer(serializers.ModelSerializer):
+
+
+    user = serializers.SerializerMethodField()
+
 
 
     items = OrderItemSerializer(
@@ -145,28 +152,27 @@ class OrderSerializer(serializers.ModelSerializer):
     )
 
 
-    class Meta:
 
+    class Meta:
 
         model = Order
 
+        fields = "__all__"
 
-        fields = [
 
-            "id",
 
-            "address",
 
-            "phone",
+    def get_user(self,obj):
 
-            "payment_method",
 
-            "total",
+        return {
 
-            "status",
 
-            "created_at",
+            "id":obj.user.id,
 
-            "items"
+            "username":obj.user.username,
 
-        ]
+            "email":obj.user.email
+
+
+        }

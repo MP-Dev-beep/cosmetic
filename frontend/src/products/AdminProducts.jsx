@@ -4,13 +4,17 @@ import axios from "../api/axios";
 
 function AdminProducts(){
 
-    const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
 
-    const [loading, setLoading] = useState(false);
+    const [products,setProducts] = useState([]);
+
+    const [categories,setCategories] = useState([]);
 
 
-    const [product, setProduct] = useState({
+    const [editId,setEditId] = useState(null);
+
+
+
+    const initialState = {
 
         name:"",
         brand:"",
@@ -23,42 +27,45 @@ function AdminProducts(){
         image:null,
         rating:0,
         is_featured:false,
-        is_new:true
+        is_new:false
 
-    });
+    };
+
+
+    const [product,setProduct] = useState(initialState);
 
 
 
-    // ==========================
-    // CHARGER CATEGORIES
-    // ==========================
+
 
     useEffect(()=>{
 
-        getCategories();
-        getProducts();
+        fetchProducts();
+
+        fetchCategories();
 
     },[]);
 
 
 
-    const getCategories = async()=>{
+
+
+    // =========================
+    // GET PRODUITS
+    // =========================
+
+    const fetchProducts = async()=>{
 
         try{
 
-            const response = await axios.get(
-                "/categories/"
-            );
+            const res = await axios.get("/products/");
 
-            setCategories(response.data);
+            setProducts(res.data);
 
 
         }catch(error){
 
-            console.log(
-                "Erreur catégories",
-                error
-            );
+            console.log(error);
 
         }
 
@@ -68,33 +75,30 @@ function AdminProducts(){
 
 
 
-    // ==========================
-    // CHARGER PRODUITS
-    // ==========================
 
+    // =========================
+    // GET CATEGORIES
+    // =========================
 
-    const getProducts = async()=>{
+    const fetchCategories = async()=>{
+
 
         try{
 
-            const response = await axios.get(
-                "/products/"
-            );
+
+            const res = await axios.get("/categories/");
 
 
-            setProducts(
-                response.data
-            );
+            setCategories(res.data);
+
 
 
         }catch(error){
 
-            console.log(
-                "Erreur produits",
-                error
-            );
+            console.log(error);
 
         }
+
 
     };
 
@@ -102,10 +106,10 @@ function AdminProducts(){
 
 
 
-    // ==========================
+
+    // =========================
     // INPUT CHANGE
-    // ==========================
-
+    // =========================
 
     const handleChange=(e)=>{
 
@@ -140,6 +144,7 @@ function AdminProducts(){
             });
 
 
+
         }
 
         else{
@@ -163,21 +168,21 @@ function AdminProducts(){
 
 
 
-    // ==========================
-    // CREATION PRODUIT
-    // ==========================
 
+
+
+    // =========================
+    // CREATE / UPDATE
+    // =========================
 
     const handleSubmit=async(e)=>{
+
 
         e.preventDefault();
 
 
-        setLoading(true);
 
-
-
-        const formData = new FormData();
+        const formData=new FormData();
 
 
 
@@ -196,8 +201,6 @@ function AdminProducts(){
 
         });
 
-        
-
 
 
 
@@ -205,73 +208,76 @@ function AdminProducts(){
         try{
 
 
-            await axios.post(
+            if(editId){
 
-                "/products/",
 
-                formData,
+                await axios.patch(
 
-                {
+                    `/products/${editId}/`,
+
+                    formData,
+
+                    {
 
                     headers:{
-
-                        "Content-Type":
-                        "multipart/form-data"
+                        "Content-Type":"multipart/form-data"
+                    }
 
                     }
 
-                }
-
-            );
+                );
 
 
-
-            alert(
-                "Produit ajouté avec succès"
-            );
-
+                alert(
+                    "Produit modifié"
+                );
 
 
-            getProducts();
+            }
+
+
+            else{
+
+
+                await axios.post(
+
+                    "/products/",
+
+                    formData,
+
+                    {
+
+                    headers:{
+                        "Content-Type":"multipart/form-data"
+                    }
+
+                    }
+
+                );
+
+
+                alert(
+                    "Produit ajouté"
+                );
+
+
+            }
 
 
 
+            setProduct(initialState);
 
-            setProduct({
+            setEditId(null);
 
-                name:"",
-                brand:"",
-                description:"",
-                ingredients:"",
-                category:"",
-                price:"",
-                discount:0,
-                stock:0,
-                image:null,
-                rating:0,
-                is_featured:false,
-                is_new:true
-
-            });
+            fetchProducts();
 
 
 
-        }
-
-        catch(error){
+        }catch(error){
 
 
-            console.log(
-                error.response?.data || error
-            );
+            console.log(error.response?.data);
 
-
-        }
-
-
-        finally{
-
-            setLoading(false);
 
         }
 
@@ -279,206 +285,95 @@ function AdminProducts(){
     };
 
 
-    // ==========================
-// SUPPRIMER PRODUIT
-// ==========================
 
-const deleteProduct = async(id)=>{
 
 
-    if(!window.confirm(
-        "Voulez-vous supprimer ce produit ?"
-    )) return;
 
 
+    // =========================
+    // EDIT
+    // =========================
 
-    try{
 
+    const editProduct=(item)=>{
 
-        await axios.delete(
-            `/products/${id}/`
-        );
 
-
-        alert(
-            "Produit supprimé"
-        );
-
-
-        getProducts();
-
-
-
-    }catch(error){
-
-        console.log(error);
-
-    }
-
-
-};
-
-
-
-
-
-// ==========================
-// MODIFIER PRODUIT
-// ==========================
-
-const editProduct = (item)=>{
-
-
-    setProduct({
-
-        id:item.id,
-
-        name:item.name || "",
-
-        brand:item.brand || "",
-
-        description:item.description || "",
-
-        ingredients:item.ingredients || "",
-
-        category:item.category || "",
-
-        price:item.price || "",
-
-        discount:item.discount || 0,
-
-        stock:item.stock || 0,
-
-        image:null,
-
-        rating:item.rating || 0,
-
-        is_featured:item.is_featured,
-
-        is_new:item.is_new
-
-
-    });
-
-
-
-    window.scrollTo({
-
-        top:0,
-
-        behavior:"smooth"
-
-    });
-
-
-
-};
-
-
-
-
-
-// ==========================
-// UPDATE PRODUIT
-// ==========================
-
-const updateProduct = async()=>{
-
-
-    const formData = new FormData();
-
-
-
-    Object.keys(product).forEach(key=>{
-
-
-        if(
-
-            product[key] !== null &&
-
-            key !== "id"
-
-        ){
-
-            formData.append(
-
-                key,
-
-                product[key]
-
-            );
-
-        }
-
-
-    });
-
-
-
-
-    try{
-
-
-        await axios.patch(
-
-            `/products/${product.id}/`,
-
-            formData,
-
-            {
-
-                headers:{
-
-                    "Content-Type":
-                    "multipart/form-data"
-
-                }
-
-            }
-
-        );
-
-
-
-        alert(
-            "Produit modifié"
-        );
-
-
-
-        getProducts();
-
+        setEditId(item.id);
 
 
         setProduct({
 
-            name:"",
-            brand:"",
-            description:"",
-            ingredients:"",
-            category:"",
-            price:"",
-            discount:0,
-            stock:0,
+            name:item.name,
+
+            brand:item.brand || "",
+
+            description:item.description,
+
+            ingredients:item.ingredients || "",
+
+            category:item.category,
+
+            price:item.price,
+
+            discount:item.discount,
+
+            stock:item.stock,
+
             image:null,
-            rating:0,
-            is_featured:false,
-            is_new:true
+
+            rating:item.rating,
+
+            is_featured:item.is_featured,
+
+            is_new:item.is_new
+
 
         });
 
 
-
-    }catch(error){
-
-
-        console.log(error.response?.data);
+    };
 
 
-    }
 
 
-};
+
+
+
+    // =========================
+    // DELETE
+    // =========================
+
+
+    const deleteProduct=async(id)=>{
+
+
+        if(!window.confirm(
+            "Supprimer ce produit ?"
+        )) return;
+
+
+
+        try{
+
+
+            await axios.delete(
+                `/products/${id}/`
+            );
+
+
+            fetchProducts();
+
+
+
+        }catch(error){
+
+            console.log(error);
+
+        }
+
+
+    };
+
 
 
 
@@ -489,28 +384,18 @@ return (
 <div className="container mt-4">
 
 
-<h2 className="mb-4">
+<h2>
 Gestion des produits
 </h2>
 
 
 
+
 <form 
 onSubmit={handleSubmit}
-className="card p-4 shadow"
+className="card p-4 mb-5"
 >
 
-
-
-<div className="row">
-
-
-<div className="col-md-6">
-
-
-<label>
-Nom du produit
-</label>
 
 
 <input
@@ -518,6 +403,8 @@ Nom du produit
 className="form-control mb-3"
 
 name="name"
+
+placeholder="Nom du produit"
 
 value={product.name}
 
@@ -527,16 +414,14 @@ onChange={handleChange}
 
 
 
-<label>
-Marque
-</label>
-
 
 <input
 
 className="form-control mb-3"
 
 name="brand"
+
+placeholder="Marque"
 
 value={product.brand}
 
@@ -546,9 +431,44 @@ onChange={handleChange}
 
 
 
-<label>
-Catégorie
-</label>
+
+
+<textarea
+
+className="form-control mb-3"
+
+name="description"
+
+placeholder="Description"
+
+value={product.description}
+
+onChange={handleChange}
+
+/>
+
+
+
+
+
+
+<textarea
+
+className="form-control mb-3"
+
+name="ingredients"
+
+placeholder="Ingrédients"
+
+value={product.ingredients}
+
+onChange={handleChange}
+
+/>
+
+
+
+
 
 
 <select
@@ -565,13 +485,17 @@ onChange={handleChange}
 
 
 <option value="">
+
 Choisir une catégorie
+
 </option>
+
 
 
 {
 
 categories.map(cat=>(
+
 
 <option
 
@@ -588,31 +512,27 @@ value={cat.id}
 
 ))
 
+
 }
+
 
 
 </select>
 
 
-</div>
 
 
-
-<div className="col-md-6">
-
-
-<label>
-Prix
-</label>
 
 
 <input
 
-type="number"
-
 className="form-control mb-3"
 
+type="number"
+
 name="price"
+
+placeholder="Prix"
 
 value={product.price}
 
@@ -622,39 +542,18 @@ onChange={handleChange}
 
 
 
-<label>
-Remise (%)
-</label>
+
 
 
 <input
 
-type="number"
-
 className="form-control mb-3"
 
-name="discount"
-
-value={product.discount}
-
-onChange={handleChange}
-
-/>
-
-
-
-<label>
-Stock
-</label>
-
-
-<input
-
 type="number"
-
-className="form-control mb-3"
 
 name="stock"
+
+placeholder="Stock"
 
 value={product.stock}
 
@@ -664,66 +563,14 @@ onChange={handleChange}
 
 
 
-</div>
 
-
-</div>
-
-<label>
-Description
-</label>
-
-
-<textarea
-
-className="form-control mb-3"
-
-name="description"
-
-rows="4"
-
-value={product.description}
-
-onChange={handleChange}
-
-/>
-
-
-
-
-<label>
-Ingrédients
-</label>
-
-
-<textarea
-
-className="form-control mb-3"
-
-name="ingredients"
-
-rows="3"
-
-value={product.ingredients}
-
-onChange={handleChange}
-
-/>
-
-
-
-
-
-<label>
-Image du produit
-</label>
 
 
 <input
 
-type="file"
-
 className="form-control mb-3"
+
+type="file"
 
 name="image"
 
@@ -737,73 +584,11 @@ onChange={handleChange}
 
 
 
-{
-
-product.image &&
-
-<div className="mb-3">
-
-
-<p>
-Aperçu :
-</p>
-
-
-<img
-
-src={
-URL.createObjectURL(product.image)
-}
-
-alt="preview"
-
-width="150"
-
-className="rounded"
-
-/>
-
-
-</div>
-
-
-}
-
-
-
 
 
 <label>
-Note
-</label>
-
 
 <input
-
-type="number"
-
-step="0.1"
-
-className="form-control mb-3"
-
-name="rating"
-
-value={product.rating}
-
-onChange={handleChange}
-
-/>
-
-
-
-
-
-<div className="form-check mb-3">
-
-
-<input
-
-className="form-check-input"
 
 type="checkbox"
 
@@ -815,26 +600,21 @@ onChange={handleChange}
 
 />
 
-
-<label className="form-check-label">
-
-Produit vedette
+ Produit vedette
 
 </label>
 
 
-</div>
+
+
+<br/>
 
 
 
 
-
-<div className="form-check mb-3">
-
+<label>
 
 <input
-
-className="form-check-input"
 
 type="checkbox"
 
@@ -846,41 +626,22 @@ onChange={handleChange}
 
 />
 
-
-<label className="form-check-label">
-
-Nouveauté
+ Nouveauté
 
 </label>
 
 
-</div>
 
 
 
 
 
-<button
+<button className="btn btn-primary mt-3">
 
-type="button"
-
-className="btn btn-success"
-
-onClick={
-product.id 
-?
-updateProduct 
-:
-handleSubmit
-}
-
->
 
 {
 
-product.id
-
-?
+editId ?
 
 "Modifier le produit"
 
@@ -895,75 +656,38 @@ product.id
 
 
 
-
 </form>
 
 
 
 
 
-<hr className="my-5"/>
 
 
+<table className="table table-bordered">
 
 
-
-<h3>
-Liste des produits
-</h3>
-
-
-
-
-
-<div className="table-responsive">
-
-
-<table className="table table-bordered table-striped">
-
-
-<thead className="table-dark">
+<thead>
 
 
 <tr>
 
+<th>Image</th>
 
-<th>
-Image
-</th>
+<th>Nom</th>
 
+<th>Catégorie</th>
 
-<th>
-Nom
-</th>
+<th>Prix</th>
 
+<th>Stock</th>
 
-<th>
-Catégorie
-</th>
-
-
-<th>
-Prix
-</th>
-
-
-<th>
-Stock
-</th>
-
-
-<th>
-Actions
-</th>
-
+<th>Actions</th>
 
 </tr>
 
 
 </thead>
-
-
 
 
 
@@ -989,17 +713,9 @@ item.image &&
 
 src={item.image}
 
-alt={item.name}
-
 width="70"
 
-height="70"
-
-style={{
-
-objectFit:"cover"
-
-}}
+alt=""
 
 />
 
@@ -1011,8 +727,6 @@ objectFit:"cover"
 
 
 
-
-
 <td>
 
 {item.name}
@@ -1021,33 +735,19 @@ objectFit:"cover"
 
 
 
-
-
 <td>
 
-{
-
-item.category_name ||
-
-item.category
-
-}
-
+{item.category_name}
 
 </td>
 
 
 
-
-
 <td>
 
-{item.price} FCFA
+{item.price}
 
 </td>
-
-
-
 
 
 <td>
@@ -1055,8 +755,6 @@ item.category
 {item.stock}
 
 </td>
-
-
 
 
 
@@ -1090,6 +788,8 @@ Supprimer
 
 </button>
 
+
+
 </td>
 
 
@@ -1103,14 +803,13 @@ Supprimer
 }
 
 
-
 </tbody>
+
 
 
 </table>
 
 
-</div>
 
 
 

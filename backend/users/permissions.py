@@ -1,9 +1,14 @@
 from rest_framework.permissions import BasePermission
 
 
-class IsAdmin(BasePermission):
+from rest_framework.permissions import BasePermission
+
+
+
+class IsAdminUser(BasePermission):
+
     """
-    Permission réservée aux administrateurs
+    Autorise uniquement les utilisateurs avec role='admin'
     """
 
     def has_permission(self, request, view):
@@ -12,7 +17,6 @@ class IsAdmin(BasePermission):
             request.user.is_authenticated
             and request.user.role == "admin"
         )
-
 
 class IsClient(BasePermission):
     """

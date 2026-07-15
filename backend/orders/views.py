@@ -2,73 +2,44 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Order
-from .serializers import (
-    OrderSerializer,
-    OrderCreateSerializer
-)
+from .serializers import OrderSerializer
+
+from users.permissions import IsAdminUser
 
 
-# =========================
-# CREATION COMMANDE CLIENT
-# =========================
 
-class OrderCreateView(generics.CreateAPIView):
+# ============================
+# LISTE DES COMMANDES ADMIN
+# ============================
 
-    serializer_class = OrderCreateSerializer
+class AdminOrderListView(
+    generics.ListAPIView
+):
+
+    queryset = Order.objects.all()
+
+    serializer_class = OrderSerializer
+
 
     permission_classes = [
-        IsAuthenticated
+        IsAdminUser
     ]
 
 
-    def perform_create(self, serializer):
-
-        serializer.save(
-            user=self.request.user
-        )
 
 
+# ============================
+# DETAIL + MODIFICATION STATUT
+# ============================
 
-# =========================
-# LISTE COMMANDES CLIENT
-# =========================
+class AdminOrderDetailView(
+    generics.RetrieveUpdateDestroyAPIView
+):
 
-class OrderListView(generics.ListAPIView):
+    queryset = Order.objects.all()
 
     serializer_class = OrderSerializer
 
     permission_classes = [
-        IsAuthenticated
+        IsAdminUser
     ]
-
-
-    def get_queryset(self):
-
-        return Order.objects.filter(
-            user=self.request.user
-        ).prefetch_related(
-            "items"
-        )
-
-
-
-# =========================
-# DETAIL COMMANDE CLIENT
-# =========================
-
-class OrderDetailView(generics.RetrieveAPIView):
-
-    serializer_class = OrderSerializer
-
-    permission_classes = [
-        IsAuthenticated
-    ]
-
-
-    def get_queryset(self):
-
-        return Order.objects.filter(
-            user=self.request.user
-        ).prefetch_related(
-            "items"
-        )
