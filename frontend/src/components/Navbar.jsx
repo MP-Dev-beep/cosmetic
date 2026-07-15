@@ -1,137 +1,207 @@
-import React from "react";
-
-import {
-    Link
-} from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
+import { useCart } from "../context/CartContext";
 
 
-import {
-    useAuth
-} from "../auth/AuthProvider";
+function Navbar() {
 
+    const { user, logout } = useAuth();
 
-
-function Navbar(){
-
-
-    const {
-        user,
-        logout
-    } = useAuth();
-
-
+    const { cartItems } = useCart();
 
 
     return (
 
-        <nav>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+
+            <div className="container">
 
 
-            <Link to="/">
-                BeautyGlow
-            </Link>
-
-
-            <Link to="/products">
-                Produits
-            </Link>
-
-
-            <Link to="/categories">
-                Catégories
-            </Link>
+                <Link 
+                    className="navbar-brand fw-bold"
+                    to="/"
+                >
+                    BeautyGlow
+                </Link>
 
 
 
-            {
-                !user && (
+                <div className="navbar-nav">
 
-                    <>
 
-                    <Link to="/login">
-                        Connexion
+                    <Link 
+                        className="nav-link"
+                        to="/"
+                    >
+                        Accueil
                     </Link>
 
 
-                    <Link to="/register">
-                        Inscription
-                    </Link>
 
-                    </>
-
-                )
-            }
-
-
-
-            {
-                user && user.role==="client" && (
-
-                    <>
-
-                    <span>
-                        Bonjour {user.username}
-                    </span>
-
-
-                    <Link to="/cart">
-                        Panier
-                    </Link>
-
-
-                    <Link to="/my-orders">
-                        Commandes
-                    </Link>
-
-
-                    <button onClick={logout}>
-                        Déconnexion
-                    </button>
-
-
-                    </>
-
-                )
-            }
-
-
-
-
-            {
-                user && user.role==="admin" && (
-
-                    <>
-
-                    <span>
-                        Admin {user.username}
-                    </span>
-
-
-                    <Link to="/dashboard">
-                        Dashboard
-                    </Link>
-
-
-                    <Link to="/admin/products">
+                    <Link
+                        className="nav-link"
+                        to="/products"
+                    >
                         Produits
                     </Link>
 
 
-                    <Link to="/admin/orders">
-                        Commandes
+
+                    <Link
+                        className="nav-link"
+                        to="/categories"
+                    >
+                        Catégories
                     </Link>
 
 
-                    <button onClick={logout}>
-                        Déconnexion
-                    </button>
+
+                    <Link
+                        className="nav-link"
+                        to="/cart"
+                    >
+                        Panier ({cartItems})
+                    </Link>
 
 
-                    </>
 
-                )
-            }
+                    {
+                        user ? (
 
+                            <>
+
+
+                                <span className="nav-link text-warning">
+                                    Bonjour {user.username}
+                                </span>
+
+
+
+                                {
+                                    user.role === "admin" ? (
+
+                                        <>
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/admin"
+                                        >
+                                            Dashboard
+                                        </Link>
+
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/admin/products"
+                                        >
+                                            Gestion produits
+                                        </Link>
+
+
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/admin/orders"
+                                        >
+                                            Gestion commandes
+                                        </Link>
+
+
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/admin/users"
+                                        >
+                                            Utilisateurs
+                                        </Link>
+
+
+                                        </>
+
+
+                                    )
+
+                                    :
+
+                                    (
+
+                                        <>
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/orders"
+                                        >
+                                            Mes commandes
+                                        </Link>
+
+
+                                        <Link
+                                            className="nav-link"
+                                            to="/profile"
+                                        >
+                                            Profil
+                                        </Link>
+
+
+                                        </>
+
+
+                                    )
+
+                                }
+
+
+
+                                <button
+                                    className="btn btn-danger btn-sm ms-2"
+                                    onClick={logout}
+                                >
+                                    Déconnexion
+                                </button>
+
+
+
+                            </>
+
+
+                        )
+
+                        :
+
+                        (
+
+                            <>
+
+
+                            <Link
+                                className="nav-link"
+                                to="/login"
+                            >
+                                Connexion
+                            </Link>
+
+
+
+                            <Link
+                                className="nav-link"
+                                to="/register"
+                            >
+                                Inscription
+                            </Link>
+
+
+                            </>
+
+
+                        )
+
+                    }
+
+
+                </div>
+
+
+            </div>
 
 
         </nav>

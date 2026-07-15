@@ -1,79 +1,10 @@
-import HeroBanner from "../components/HeroBanner";
-
-import SearchBar from "../components/SearchBar";
-
-import CategoryList from "../categories/CategoryList";
-
-import ProductList from "../products/ProductList";
-
-
-function Home(){
-
-
-return (
-
-<>
-
-
-<HeroBanner />
-
-
-<div className="container">
-
-    <SearchBar />
-
-</div>
-
-
-
-<section className="section">
-
-    <h2 className="section-title">
-
-        🌸 Nos catégories
-
-    </h2>
-
-
-    <CategoryList />
-
-
-</section>
-
-
-<ProductList
-
-    title="🔥 Produits populaires"
-
-    filter="?ordering=-stock"
-
-/>
-
-
-<ProductList
-
-    title="🆕 Nouveautés"
-
-    filter="?ordering=-created_at"
-
-/>
-
-
-<ProductList
-
-    title="🎁 Promotions"
-
-    filter="?discount=true"
-
-/>
-
-</>
-
-
-);
-
-
+function Home() {
+  return (
+    <div className="container mt-5">
+      <h2>Bienvenue sur BeautyGlow</h2>
+      <p>Découvrez nos produits cosmétiques.</p>
+    </div>
+  );
 }
-
 
 export default Home;

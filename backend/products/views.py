@@ -1,67 +1,86 @@
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 
 from .models import Product
+
 from .serializers import ProductSerializer
 
-from users.permissions import IsAdmin
-
-
-# ==========================
-# PRODUITS PUBLICS
-# ==========================
-
-class ProductListView(generics.ListAPIView):
-
-    queryset = Product.objects.all()
-
-    serializer_class = ProductSerializer
-
-    permission_classes = [
-        AllowAny
-    ]
+from .permissions import IsAdminUser
 
 
 
-class ProductDetailView(generics.RetrieveAPIView):
-
-    queryset = Product.objects.all()
-
-    serializer_class = ProductSerializer
-
-    permission_classes = [
-        AllowAny
-    ]
 
 
+# ============================
+# LISTE + CREATION PRODUIT
+# ============================
 
-# ==========================
-# ADMIN PRODUITS
-# ==========================
 
-
-class AdminProductCreateView(
+class ProductListCreateView(
     generics.ListCreateAPIView
 ):
 
+
     queryset = Product.objects.all()
+
 
     serializer_class = ProductSerializer
 
-    permission_classes = [
-        IsAdmin
-    ]
+
+
+    def get_permissions(self):
+
+
+        if self.request.method == "POST":
+
+            return [
+                IsAdminUser()
+            ]
+
+
+        return [
+            IsAuthenticatedOrReadOnly()
+        ]
 
 
 
-class AdminProductManageView(
+
+
+
+# ============================
+# DETAIL + MODIFICATION + SUPPRESSION
+# ============================
+
+
+class ProductDetailView(
     generics.RetrieveUpdateDestroyAPIView
 ):
 
+
     queryset = Product.objects.all()
+
 
     serializer_class = ProductSerializer
 
-    permission_classes = [
-        IsAdmin
-    ]
+
+
+    def get_permissions(self):
+
+
+        if self.request.method in [
+            "PUT",
+            "PATCH",
+            "DELETE"
+        ]:
+
+
+            return [
+                IsAdminUser()
+            ]
+
+
+
+        return [
+            IsAuthenticatedOrReadOnly()
+        ]

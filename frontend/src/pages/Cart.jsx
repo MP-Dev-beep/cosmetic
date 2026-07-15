@@ -1,17 +1,14 @@
-import {
-    useCart
-}
-from "../context/CartContext";
+import { Link } from "react-router-dom";
+
+import { useCart } from "../context/CartContext";
 
 
-
-export default function Cart(){
-
+function Cart() {
 
 
     const {
 
-        cartItems,
+        cart,
 
         removeFromCart,
 
@@ -23,122 +20,212 @@ export default function Cart(){
 
         cartTotal
 
-
     } = useCart();
 
+
+
+
+    if(cart.length === 0){
+
+
+        return (
+
+            <div className="container mt-5">
+
+
+                <h2>
+                    Votre panier est vide
+                </h2>
+
+
+                <Link
+                    to="/products"
+                    className="btn btn-primary mt-3"
+                >
+
+                    Voir les produits
+
+                </Link>
+
+
+            </div>
+
+        );
+
+    }
 
 
 
 
     return (
 
-        <div>
+
+        <div className="container mt-5">
 
 
-            <h1>
+            <h2 className="mb-4">
+
                 Mon panier
-            </h1>
 
+            </h2>
 
 
 
 
             {
-            cartItems.length === 0
 
-            ?
-
-            (
-
-                <p>
-                    Votre panier est vide
-                </p>
-
-            )
-
-
-            :
-
-            (
-
-                cartItems.map(item=>(
+                cart.map((item)=>(
 
 
                     <div
-                    key={item.id}
+
+                        key={item.id}
+
+                        className="card mb-3"
+
                     >
 
 
-                        <h3>
-
-                            {item.name}
-
-                        </h3>
+                        <div className="card-body">
 
 
-
-                        <p>
-
-                            Prix :
-                            {item.price}
-                            FCFA
-
-                        </p>
+                            <div className="row align-items-center">
 
 
 
-                        <p>
-
-                            Quantité :
-                            {item.quantity}
-
-                        </p>
+                                <div className="col-md-3">
 
 
+                                    {
+
+                                        item.image &&
+
+                                        <img
+
+                                            src={
+                                                item.image.startsWith("http")
+                                                ?
+                                                item.image
+                                                :
+                                                `http://127.0.0.1:8000${item.image}`
+                                            }
+
+                                            alt={item.name}
+
+                                            className="img-fluid"
+
+                                            style={{
+                                                height:"100px",
+                                                objectFit:"cover"
+                                            }}
+
+                                        />
+
+                                    }
 
 
-
-                        <button
-
-                        onClick={()=>
-                        decreaseQuantity(item.id)}
-
-                        >
-
-                        -
-
-                        </button>
-
-
-
-
-
-                        <button
-
-                        onClick={()=>
-                        increaseQuantity(item.id)}
-
-                        >
-
-                        +
-
-                        </button>
+                                </div>
 
 
 
 
+                                <div className="col-md-3">
 
-                        <button
 
-                        onClick={()=>
-                        removeFromCart(item.id)}
+                                    <h5>
 
-                        >
+                                        {item.name}
 
-                            Supprimer
+                                    </h5>
 
-                        </button>
 
+                                    <p>
+
+                                        {item.price} FCFA
+
+                                    </p>
+
+
+                                </div>
+
+
+
+
+                                <div className="col-md-3">
+
+
+                                    <button
+
+                                        className="btn btn-secondary me-2"
+
+                                        onClick={() =>
+                                            decreaseQuantity(item.id)
+                                        }
+
+                                    >
+
+                                        -
+
+                                    </button>
+
+
+
+                                    <span>
+
+                                        {item.quantity}
+
+                                    </span>
+
+
+
+                                    <button
+
+                                        className="btn btn-secondary ms-2"
+
+                                        onClick={() =>
+                                            increaseQuantity(item.id)
+                                        }
+
+                                    >
+
+                                        +
+
+                                    </button>
+
+
+                                </div>
+
+
+
+
+
+                                <div className="col-md-3">
+
+
+                                    <button
+
+                                        className="btn btn-danger"
+
+                                        onClick={() =>
+                                            removeFromCart(item.id)
+                                        }
+
+                                    >
+
+                                        Supprimer
+
+                                    </button>
+
+
+                                </div>
+
+
+
+                            </div>
+
+
+
+                        </div>
 
 
                     </div>
@@ -146,42 +233,70 @@ export default function Cart(){
 
                 ))
 
-
-            )
-
             }
 
 
 
 
 
-            <h3>
-
-                Total :
-                {cartTotal}
-                FCFA
-
-            </h3>
+            <div className="card mt-4">
 
 
+                <div className="card-body">
+
+
+                    <h4>
+
+                        Total :
+
+                        {" "}
+
+                        {cartTotal} FCFA
+
+                    </h4>
 
 
 
-            <button
+                    <button
 
-            onClick={clearCart}
+                        className="btn btn-outline-danger me-3"
 
-            >
+                        onClick={clearCart}
 
-                Vider panier
+                    >
 
-            </button>
+                        Vider le panier
+
+                    </button>
+
+
+
+                    <Link
+
+                        to="/checkout"
+
+                        className="btn btn-success"
+
+                    >
+
+                        Commander
+
+                    </Link>
+
+
+                </div>
+
+
+            </div>
 
 
 
         </div>
 
+
     );
 
-
 }
+
+
+export default Cart;

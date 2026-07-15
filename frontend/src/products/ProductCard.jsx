@@ -1,64 +1,100 @@
 import { Link } from "react-router-dom";
-
-import { useContext } from "react";
-
-import { CartContext } from "../context/CartContext";
+import { useCart } from "../context/CartContext";
 
 
+function ProductCard({ product }) {
 
-function ProductCard({product}){
 
-
-    const { addToCart } = useContext(CartContext);
+    const { addToCart } = useCart();
 
 
 
     return (
 
-        <div className="product-card">
+        <div className="card h-100 shadow-sm">
 
 
-            <img
+            {
+                product.image && (
 
-                src={product.image}
+                    <img
 
-                alt={product.name}
+                        src={
+                            product.image.startsWith("http")
+                            ? product.image
+                            : `http://127.0.0.1:8000${product.image}`
+                        }
 
-            />
+                        className="card-img-top"
+
+                        alt={product.name}
+
+                        style={{
+                            height:"220px",
+                            objectFit:"cover"
+                        }}
+
+                    />
+
+                )
+            }
 
 
 
-            <div className="product-body">
+            <div className="card-body">
 
 
-                <h3 className="product-name">
+                <h5 className="card-title">
 
                     {product.name}
 
-                </h3>
+                </h5>
 
 
 
-                <p className="product-price">
+                <p className="card-text">
 
-                    {product.prix || product.price} FCFA
+                    {product.description?.substring(0,80)}
+
+                    ...
 
                 </p>
 
 
 
-                <div className="product-actions">
+                <h6 className="text-success">
+
+                    {product.price} FCFA
+
+                </h6>
+
+
+
+                <p>
+
+                    Stock :
+
+                    <strong>
+                        {" "}
+                        {product.stock}
+                    </strong>
+
+                </p>
+
+
+
+                <div className="d-flex gap-2">
 
 
                     <Link
 
-                        className="btn-details"
-
                         to={`/products/${product.id}`}
+
+                        className="btn btn-outline-primary"
 
                     >
 
-                        Voir détails
+                        Voir
 
                     </Link>
 
@@ -66,18 +102,19 @@ function ProductCard({product}){
 
                     <button
 
-                        className="btn-cart"
+                        className="btn btn-success"
 
-                        onClick={()=>addToCart(product)}
+                        onClick={() => addToCart(product)}
 
                     >
 
-                        Ajouter 🛒
+                        Ajouter
 
                     </button>
 
 
                 </div>
+
 
 
             </div>
@@ -86,7 +123,6 @@ function ProductCard({product}){
         </div>
 
     );
-
 
 }
 

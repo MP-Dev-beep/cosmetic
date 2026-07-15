@@ -1,119 +1,158 @@
-import { useState, useContext } from "react";
-import api from "../api/axios";
-
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import React from "react";
 import { useAuth } from "./AuthProvider";
 
 
-function Login(){
+function Login() {
 
-const [username,setUsername] = useState("");
-const [password,setPassword] = useState("");
+    const { login } = useAuth();
 
-const navigate = useNavigate();
-
-const {login} = useAuth();
+    const navigate = useNavigate();
 
 
+    const [form, setForm] = useState({
 
-const handleLogin = async(e)=>{
+        username: "",
+        password: ""
 
-e.preventDefault();
-
-
-try{
-
-const response = await api.post(
-    "/users/login/",
-    {
-        username,
-        password
-    }
-);
+    });
 
 
-login(
-    response.data.access,
-    response.data.refresh,
-    response.data.user
-);
+    const [error, setError] = useState("");
+
+
+    const handleChange = (e)=>{
+
+        setForm({
+
+            ...form,
+
+            [e.target.name]: e.target.value
+
+        });
+
+    };
+
+
+    const handleSubmit = async(e)=>{
+
+        e.preventDefault();
+
+
+        const result = await login(
+            form.username,
+            form.password
+        );
+
+
+        if(result.success){
+
+            navigate("/");
+
+        }
+        else{
+
+            setError(
+                "Identifiants incorrects"
+            );
+
+        }
+
+    };
+
+
+    return (
+
+        <div className="container mt-5"
+             style={{maxWidth:"450px"}}>
+
+
+            <h2>
+                Connexion
+            </h2>
+
+
+            {
+                error &&
+
+                <div className="alert alert-danger">
+
+                    {error}
+
+                </div>
+
+            }
 
 
 
-if(response.data.user.role === "admin"){
-
-    navigate("/admin/dashboard");
-
-}
-else{
-
-    navigate("/");
-
-}
+            <form onSubmit={handleSubmit}>
 
 
+                <div className="mb-3">
 
-}
-catch(error){
-
-console.log(
-    error.response?.data
-);
-
-}
+                    <label>
+                        Nom utilisateur
+                    </label>
 
 
-};
+                    <input
+
+                        className="form-control"
+
+                        name="username"
+
+                        value={form.username}
+
+                        onChange={handleChange}
+
+                    />
+
+                </div>
 
 
 
-return (
 
-<form onSubmit={handleLogin}>
-
-<h1>
-Connexion
-</h1>
+                <div className="mb-3">
 
 
-<input
-
-placeholder="username"
-
-value={username}
-
-onChange={
-e=>setUsername(e.target.value)
-}
-
-/>
+                    <label>
+                        Mot de passe
+                    </label>
 
 
-<input
+                    <input
 
-type="password"
+                        type="password"
 
-placeholder="password"
+                        className="form-control"
 
-value={password}
+                        name="password"
 
-onChange={
-e=>setPassword(e.target.value)
-}
+                        value={form.password}
 
-/>
+                        onChange={handleChange}
 
-
-<button>
-Connexion
-</button>
+                    />
 
 
-</form>
+                </div>
 
-);
 
+
+
+                <button className="btn btn-primary w-100">
+
+                    Se connecter
+
+                </button>
+
+
+            </form>
+
+
+        </div>
+
+    );
 
 }
 

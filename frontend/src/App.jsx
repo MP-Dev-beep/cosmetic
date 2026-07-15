@@ -1,42 +1,27 @@
-import React from "react";
-
-
-import { BrowserRouter } from "react-router-dom";
-
 import AppNavigation from "./navigation/AppNavigation";
-
-import useAuth from "./auth/AuthProvider";
-
-import { CartProvider } from "./context/CartContext";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 
-
-function App(){
-
-
-    return (
-
-        <BrowserRouter>
+function App() {
 
 
-            <AuthProvider>
+  return (
+
+    <>
+
+      <Navbar />
 
 
-                <CartProvider>
+      <AppNavigation />
 
 
-                    <AppNavigation/>
+      <Footer />
 
+    </>
 
-                </CartProvider>
+  );
 
-
-            </AuthProvider>
-
-
-        </BrowserRouter>
-
-    );
 
 }
 

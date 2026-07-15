@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import api from "../api/axios";
-import { CartContext } from "../context/CartContext";
+import { useCart } from "../context/CartContext";
 
 
 function ProductDetail() {
@@ -10,71 +10,107 @@ function ProductDetail() {
 
     const { id } = useParams();
 
-    const navigate = useNavigate();
 
-
-    const { addToCart } = useContext(CartContext);
+    const { addToCart } = useCart();
 
 
     const [product, setProduct] = useState(null);
 
+
     const [loading, setLoading] = useState(true);
+
+
+    const [error, setError] = useState("");
 
 
 
     useEffect(() => {
 
-
-        api.get(`/products/${id}/`)
-
-        .then(res => {
-
-            setProduct(res.data);
-
-        })
-
-        .catch(error => {
-
-            console.log(error);
-
-        })
-
-        .finally(() => {
-
-            setLoading(false);
-
-        });
-
+        getProduct();
 
     }, [id]);
 
 
 
-
-    if (loading) {
-
-        return <h2>Chargement...</h2>;
-
-    }
+    const getProduct = async () => {
 
 
-
-    if (!product) {
-
-        return <h2>Produit introuvable</h2>;
-
-    }
+        try {
 
 
+            const response = await api.get(
+                `products/${id}/`
+            );
 
 
-    const buyNow = () => {
+            setProduct(response.data);
 
-        addToCart(product);
 
-        navigate("/checkout");
+        }
+
+        catch(error){
+
+
+            console.log(error);
+
+
+            setError(
+                "Produit introuvable."
+            );
+
+
+        }
+
+        finally{
+
+
+            setLoading(false);
+
+
+        }
+
 
     };
+
+
+
+
+    if(loading){
+
+
+        return (
+
+            <div className="container mt-5">
+
+                Chargement...
+
+            </div>
+
+        );
+
+    }
+
+
+
+
+    if(error){
+
+
+        return (
+
+            <div className="container mt-5">
+
+                <div className="alert alert-danger">
+
+                    {error}
+
+                </div>
+
+            </div>
+
+        );
+
+    }
 
 
 
@@ -82,121 +118,116 @@ function ProductDetail() {
     return (
 
 
-        <div className="container product-detail">
+        <div className="container mt-5">
 
 
-            <div className="product-detail-image">
+            <div className="row">
 
 
-                <img
-
-                    src={product.image}
-
-                    alt={product.name}
-
-                />
-
-
-            </div>
-
-
-
-
-            <div className="product-detail-info">
-
-
-                <h1>
-
-                    {product.name}
-
-                </h1>
-
-
-
-
-                <h2 className="price">
-
-                    {product.price} FCFA
-
-                </h2>
-
-
-
-
-                <p>
-
-                    {product.description}
-
-                </p>
-
-
-
-
-                <p>
-
-                    <strong>
-
-                        Disponibilité :
-
-                    </strong>
-
-
-                    {" "}
+                <div className="col-md-6">
 
 
                     {
+                        product.image &&
 
-                        product.stock > 0
+                        <img
 
-                        ?
+                            src={
+                                product.image.startsWith("http")
+                                ?
+                                product.image
+                                :
+                                `http://127.0.0.1:8000${product.image}`
+                            }
 
-                        "En stock"
+                            alt={product.name}
 
-                        :
+                            className="img-fluid rounded"
 
-                        "Rupture de stock"
+                        />
 
                     }
 
 
-                </p>
+                </div>
 
 
 
+                <div className="col-md-6">
 
-                <button
 
-                    onClick={() => addToCart(product)}
+                    <h2>
 
-                    disabled={product.stock === 0}
+                        {product.name}
 
-                >
-
-                    Ajouter au panier
-
-                </button>
+                    </h2>
 
 
 
+                    <h4 className="text-success">
 
-                <button
+                        {product.price} FCFA
 
-                    className="buy-btn"
+                    </h4>
 
-                    onClick={buyNow}
 
-                    disabled={product.stock === 0}
 
-                >
+                    <p>
 
-                    Acheter maintenant
+                        {product.description}
 
-                </button>
+                    </p>
 
+
+
+                    <p>
+
+                        Stock :
+
+                        <strong>
+                            {" "}
+                            {product.stock}
+                        </strong>
+
+                    </p>
+
+
+
+                    {
+                        product.category &&
+
+                        <p>
+
+                            Catégorie :
+
+                            {" "}
+
+                            {product.category.name}
+
+                        </p>
+
+                    }
+
+
+
+                    <button
+
+                        className="btn btn-success btn-lg"
+
+                        onClick={() => addToCart(product)}
+
+                    >
+
+                        Ajouter au panier
+
+                    </button>
+
+
+
+                </div>
 
 
             </div>
-
 
 
         </div>
@@ -204,8 +235,8 @@ function ProductDetail() {
 
     );
 
-
 }
+
 
 
 export default ProductDetail;

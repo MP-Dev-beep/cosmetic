@@ -14,36 +14,48 @@ function MyOrders(){
 
     useEffect(()=>{
 
+        getOrders();
 
-        api.get("/orders/my-orders/")
-
-        .then(res=>{
-
-
-            setOrders(res.data);
+    },[]);
 
 
-        })
 
-        .catch(error=>{
+
+    const getOrders = async()=>{
+
+
+        try{
+
+            const response = await api.get(
+            "orders/"
+            );
+
+
+            setOrders(response.data);
+
+
+        }
+
+
+        catch(error){
 
 
             console.log(error);
 
 
-        })
+        }
 
-        .finally(()=>{
+
+        finally{
 
 
             setLoading(false);
 
 
-        });
+        }
 
 
-
-    },[]);
+    };
 
 
 
@@ -51,13 +63,14 @@ function MyOrders(){
 
     if(loading){
 
+
         return (
 
-            <h2>
+            <div className="container mt-5">
 
-                Chargement des commandes...
+                Chargement...
 
-            </h2>
+            </div>
 
         );
 
@@ -66,171 +79,106 @@ function MyOrders(){
 
 
 
-
-    return(
-
-
-        <div className="container orders-page">
+    return (
 
 
+        <div className="container mt-5">
 
-            <h1>
 
-                Mes commandes 🛍️
+            <h2>
 
-            </h1>
+                Mes commandes
+
+            </h2>
 
 
 
 
             {
 
-                orders.length === 0 ?
+                orders.length === 0
 
-                (
+                ?
 
-                    <p>
+                <p>
 
-                        Vous n'avez aucune commande.
+                    Aucune commande.
 
-                    </p>
-
-                )
+                </p>
 
 
                 :
 
 
-                orders.map(order=>(
-
+                orders.map((order)=>(
 
 
                     <div
 
-                        className="order-card"
+                        className="card mb-3"
 
                         key={order.id}
 
                     >
 
 
+                        <div className="card-body">
 
-                        <div className="order-header">
 
-
-                            <h3>
+                            <h5>
 
                                 Commande #{order.id}
 
-                            </h3>
+                            </h5>
 
 
-                            <span className="status">
 
+                            <p>
+
+                                Date :
+
+                                {" "}
+
+                                {order.date}
+
+                            </p>
+
+
+
+                            <p>
+
+                                Total :
+
+                                {" "}
+
+                                {order.total}
+
+                                FCFA
+
+                            </p>
+
+
+
+                            <p>
+
+                                Statut :
+
+                                {" "}
 
                                 {order.status}
 
-
-                            </span>
-
+                            </p>
 
 
                         </div>
 
 
-
-
-
-                        <p>
-
-                            Date :
-
-                            {" "}
-
-                            {order.created_at}
-
-                        </p>
-
-
-
-
-
-                        <hr/>
-
-
-
-
-
-                        {
-
-                            order.items?.map(item=>(
-
-
-                                <div
-
-                                    className="order-item"
-
-                                    key={item.id}
-
-                                >
-
-
-                                    <p>
-
-                                        {item.product_name}
-
-                                        {" x "}
-
-                                        {item.quantity}
-
-                                    </p>
-
-
-                                    <p>
-
-                                        {item.price}
-
-                                        FCFA
-
-                                    </p>
-
-
-
-                                </div>
-
-
-                            ))
-
-                        }
-
-
-
-
-
-                        <h3>
-
-
-                            Total :
-
-                            {" "}
-
-                            {order.total}
-
-                            FCFA
-
-
-                        </h3>
-
-
-
                     </div>
-
 
 
                 ))
 
             }
-
 
 
 

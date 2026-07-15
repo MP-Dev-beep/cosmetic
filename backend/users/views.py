@@ -1,47 +1,188 @@
-from rest_framework import generics
+from django.contrib.auth import authenticate
+
+
+from rest_framework import status
+
+from rest_framework.views import APIView
+
+from rest_framework.response import Response
+
 from rest_framework.permissions import (
     AllowAny,
-    IsAuthenticated,
+    IsAuthenticated
 )
 
-from rest_framework_simplejwt.views import TokenObtainPairView
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView
+)
+
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer
+)
+
 
 from .models import User
 
+
 from .serializers import (
-    RegisterSerializer,
     UserSerializer,
+    RegisterSerializer
 )
 
-from .tokens import CustomTokenObtainPairSerializer
 
 
 
-class RegisterView(generics.CreateAPIView):
 
-    serializer_class = RegisterSerializer
+# =====================================
+# JWT PERSONNALISE
+# =====================================
+
+class CustomTokenObtainPairSerializer(
+    TokenObtainPairSerializer
+):
+
+
+    def validate(self, attrs):
+
+        data = super().validate(attrs)
+
+
+        data["user"] = UserSerializer(
+            self.user
+        ).data
+
+
+        return data
+
+
+
+
+
+class CustomTokenObtainPairView(
+    TokenObtainPairView
+):
+
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+
+
+
+
+
+# =====================================
+# INSCRIPTION
+# =====================================
+
+
+class RegisterView(APIView):
 
     permission_classes = [
         AllowAny
     ]
 
 
+    def post(self, request):
 
-class ProfileView(generics.RetrieveAPIView):
+        serializer = RegisterSerializer(
+            data=request.data
+        )
 
-    serializer_class = UserSerializer
+
+        if serializer.is_valid():
+
+            user = serializer.save()
+
+
+            return Response(
+
+                UserSerializer(user).data,
+
+                status=status.HTTP_201_CREATED
+            )
+
+
+        return Response(
+
+            serializer.errors,
+
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+
+
+
+
+
+# =====================================
+# PROFIL
+# =====================================
+
+
+class ProfileView(APIView):
+
 
     permission_classes = [
         IsAuthenticated
     ]
 
 
-    def get_object(self):
 
-        return self.request.user
+    def get(self, request):
+
+        serializer = UserSerializer(
+            request.user
+        )
+
+
+        return Response(
+            serializer.data
+        )
 
 
 
-class CustomTokenObtainPairView(TokenObtainPairView):
 
-    serializer_class = CustomTokenObtainPairSerializer
+
+
+
+# =====================================
+# LISTE UTILISATEURS ADMIN
+# =====================================
+
+
+class UserListView(APIView):
+
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+
+
+    def get(self, request):
+
+
+        if request.user.role != "admin":
+
+            return Response(
+                {
+                    "error":"Accès refusé"
+                },
+                status=403
+            )
+
+
+        users = User.objects.all()
+
+
+        serializer = UserSerializer(
+            users,
+            many=True
+        )
+
+
+        return Response(
+            serializer.data
+        )

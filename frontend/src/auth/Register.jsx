@@ -1,204 +1,183 @@
 import { useState } from "react";
-import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 
 function Register(){
 
-
-const navigate = useNavigate();
-
-
-const [form,setForm] = useState({
-
-    username:"",
-    email:"",
-    password:"",
-    phone:""
-
-});
+    const navigate = useNavigate();
 
 
+    const [form,setForm]=useState({
 
-const handleChange = (e)=>{
-
-    setForm({
-
-        ...form,
-
-        [e.target.name]: e.target.value
+        username:"",
+        email:"",
+        phone:"",
+        password:""
 
     });
 
-};
 
+    const [message,setMessage]=useState("");
 
 
 
-const register = async(e)=>{
+    const handleChange=(e)=>{
 
-    e.preventDefault();
+        setForm({
 
+            ...form,
 
-    try{
+            [e.target.name]:e.target.value
 
+        });
 
-        const response = await api.post(
-            "/users/register/",
-            form
-        );
+    };
 
 
-        console.log(response.data);
 
+    const handleSubmit=async(e)=>{
 
-        alert(
-            "Inscription réussie"
-        );
+        e.preventDefault();
 
 
-        navigate("/login");
+        try{
 
 
-    }
+            await api.post(
+                "users/register/",
+                form
+            );
 
-    catch(error){
 
+            setMessage(
+                "Compte créé avec succès"
+            );
 
-        console.log(
-            error.response?.data
-        );
 
+            setTimeout(()=>{
 
-        alert(
-            "Erreur inscription"
-        );
+                navigate("/login");
 
+            },1500);
 
-    }
 
 
-};
+        }
 
+        catch(error){
 
 
+            setMessage(
+                "Erreur lors de l'inscription"
+            );
 
 
-return (
+        }
 
-<div className="container mt-5">
 
+    };
 
-<div className="card shadow p-4">
 
 
-<h2>
-Créer un compte
-</h2>
+    return (
 
+        <div className="container mt-5"
+             style={{maxWidth:"450px"}}>
 
 
-<form onSubmit={register}>
+            <h2>
+                Inscription
+            </h2>
 
 
-<input
+            {
+                message &&
 
-className="form-control mb-3"
+                <div className="alert alert-info">
 
-name="username"
+                    {message}
 
-placeholder="Nom utilisateur"
+                </div>
 
-value={form.username}
+            }
 
-onChange={handleChange}
 
-/>
 
+            <form onSubmit={handleSubmit}>
 
 
-<input
+                <input
 
-className="form-control mb-3"
+                    className="form-control mb-3"
 
-name="email"
+                    placeholder="Nom"
 
-type="email"
+                    name="username"
 
-placeholder="Email"
+                    onChange={handleChange}
 
-value={form.email}
+                />
 
-onChange={handleChange}
 
-/>
 
+                <input
 
+                    className="form-control mb-3"
 
+                    placeholder="Email"
 
-<input
+                    name="email"
 
-className="form-control mb-3"
+                    onChange={handleChange}
 
-name="phone"
+                />
 
-placeholder="Téléphone"
 
-value={form.phone}
 
-onChange={handleChange}
+                <input
 
-/>
+                    className="form-control mb-3"
 
+                    placeholder="Téléphone"
 
+                    name="phone"
 
+                    onChange={handleChange}
 
+                />
 
-<input
 
-className="form-control mb-3"
 
-name="password"
+                <input
 
-type="password"
+                    type="password"
 
-placeholder="Mot de passe"
+                    className="form-control mb-3"
 
-value={form.password}
+                    placeholder="Mot de passe"
 
-onChange={handleChange}
+                    name="password"
 
-/>
+                    onChange={handleChange}
 
+                />
 
 
 
+                <button className="btn btn-success w-100">
 
-<button
+                    Créer mon compte
 
-className="btn btn-primary w-100"
+                </button>
 
-type="submit"
 
->
+            </form>
 
-S'inscrire
 
-</button>
+        </div>
 
-
-
-</form>
-
-
-</div>
-
-
-</div>
-
-
-);
-
+    );
 
 }
 
